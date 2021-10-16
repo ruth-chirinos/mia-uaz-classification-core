@@ -1,13 +1,14 @@
-//import dotenv from 'dotenv'
-//dotenv.config()
-//var albumBucketName = process.env.AWS_BUCKET_NAME;
-//var bucketRegion = process.env.AWS_REGION;
-//var IdentityPoolId = process.env.AWS_IDENTITY_POOL_ID;
+import dotenv from 'dotenv'
+dotenv.config()
+var albumBucketName = process.env.AWS_BUCKET_NAME;
+var bucketRegion = process.env.AWS_REGION;
+var IdentityPoolId = process.env.AWS_IDENTITY_POOL_ID;
 
+/*
 var albumBucketName = "uaz-unir-bucket";
 var bucketRegion = "us-east-2";
 var IdentityPoolId = "us-east-2:83b42f0e-5545-46f7-83eb-ec0959b66f14";
-
+*/
 
 AWS.config.update({
   region: bucketRegion,
