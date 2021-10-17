@@ -1,0 +1,23 @@
+{
+  "name": "mia-uaz-classification-core",
+  "version": "1.0.0",
+  "description": "logs *.log npm-debug.log* yarn-debug.log* yarn-error.log*",
+  "main": "s3.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ruth-chirinos/mia-uaz-classification-core.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ruth-chirinos/mia-uaz-classification-core/issues"
+  },
+  "homepage": "https://github.com/ruth-chirinos/mia-uaz-classification-core#readme",
+  "dependencies": {
+    "dotenv": "^10.0.0"
+  }
+}
