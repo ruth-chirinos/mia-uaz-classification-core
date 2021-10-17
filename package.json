@@ -1,6 +1,7 @@
 {
   "name": "mia-uaz-classification-core",
   "version": "1.0.0",
+  "type":"module",
   "description": "logs *.log npm-debug.log* yarn-debug.log* yarn-error.log*",
   "main": "s3.js",
   "scripts": {
