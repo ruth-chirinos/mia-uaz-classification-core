@@ -37,28 +37,32 @@ function listAlbums() {
           var albumName = decodeURIComponent(prefix.replace("/", ""));
           return getHtml([
             "<li>",
-            "<span onclick=\"deleteAlbum('" + albumName + "')\" style='color:red;cursor:pointer;'>[Delete]</span>",
+            //"<span onclick=\"deleteAlbum('" + albumName + "')\" style='color:red;cursor:pointer;'>[Delete]</span>",
             "<span onclick=\"viewAlbum('" + albumName + "')\" style='color:blue;cursor:pointer;'>",
-            "&nbsp;&nbsp;Folder Name: "+albumName,
+            albumName,
             "</span>",
             "</li>"
           ]);
         });
         var message = albums.length
           ? getHtml([
-              "<p>Click on the <span style='color:blue;'>Folder Name</span> to view it.</p>",
-              "<p>Click on the <span style='color:red;'>[Delete]</span> to delete the album.</p></br>"
+              "<p>This tool wants to help you to analyze structured datasets (Features and Models).</p>",
+              //"<p>Click on the <span style='color:blue;'>Folder Name</span> to view it.</p>",
+              //"<p>Click on the <span style='color:red;'>[Delete]</span> to delete the album.</p></br>"
             ])
-          : "<p>You do not have any albums. Please Create album.";
+          : "<p>You do not have any folders. Please create folder.";
         var htmlTemplate = [
-          "<h3 class='title mx-auto'>Analysis of Datasets</h3>",
+          "<h3 class='title mx-auto'><b>Analysis of Datasets</b></h3>",
           message,
           "<ul>",
           getHtml(albums),
-          "</ul>",
+          "</ul>"
+          /* 
+          //Hidden logic, only enabled for deleting Albums
+          ,
           "<button onclick=\"createAlbum(prompt('Enter Album Name:'))\" class='btn btn-danger btn-block btn-round'>",
           "Create New Album",
-          "</button>"
+          "</button>"*/
         ];
         document.getElementById("app").innerHTML = getHtml(htmlTemplate);
       }
@@ -78,16 +82,16 @@ function listAlbums() {
     var albumKey = encodeURIComponent(albumName)+"/";
     s3.headObject({ Key: albumKey }, function(err, data) {
       if (!err) {
-        return alert("Album already exists.");
+        return alert("Folder already exists.");
       }
       if (err.code !== "NotFound") {
-        return alert("There was an error creating your album: " + err.message);
+        return alert("There was an error creating your folder: " + err.message);
       }
       s3.putObject({ Key: albumKey }, function(err, data) {
         if (err) {
-          return alert("There was an error creating your album: " + err.message);
+          return alert("There was an error creating your folder: " + err.message);
         }
-        alert("Successfully created album.");
+        alert("Successfully created folder.");
         viewAlbum(albumName);
       });
     });
@@ -114,10 +118,13 @@ function listAlbums() {
         if(photoUrl != (pathFolder)){
           count = count+1;
           return getHtml([
-            "<span>",
-            "<div>",
-            '<img style="width:128px;height:128px;" src="' + photoUrl + '"/>',
-            "</div>",
+            "<tr>",
+            "<td>",
+            //'<img style="width:128px;height:128px;" src="' + photoUrl + '"/>',
+            '<img style="width:30px;height:23px;" src="./assets/img/csv_image.ico"/>',
+            "</td>",
+            '<td>'+photoKey.replace(albumPhotosKey, "")+'</td>',
+            "<td>",
             "<div>",
             "<span onclick=\"deletePhoto('" +
               albumName +
@@ -125,12 +132,10 @@ function listAlbums() {
               photoKey +
               "')\" style='color:red;cursor:pointer;'>",
             "[Delete]&nbsp;&nbsp;",
-            "</span>",
-            "<span>",
-            photoKey.replace(albumPhotosKey, ""),
-            "</span>",
+            "</span>",            
             "</div>",
-            "</span>"
+            "</td>",
+            "</tr>"
           ]);
         } else {
           return getHtml([
@@ -140,22 +145,27 @@ function listAlbums() {
       });
       //var message = photos.length
       var message = count>0
-        ? "<p>Click on the <span style='color:red;'>[Delete]</span> to delete the file.</p></br>"
+        ? ""
+        //? "<p>Click on the <span style='color:red;'>[Delete]</span> to delete the file.</p></br>"
         : "<p>You do not have any files in this folder. Please add files.</p></br>";        
       var htmlTemplate = [
-        "<h2>",
-        "Album: " + albumName,
-        "</h2>",
-        message,
-        "<div>",
-        getHtml(photos),
-        "</div></br>",        
+        "<h3 class='title mx-auto'>",
+        "<b>" + albumName+'</b>',
+        "</h3>",
+        "<h4 class='title'>Upload a new Dataset</h4>",
         "<div class='custom-file mb-3'>",
-        '<input id="photoupload" type="file" accept=".csv" class="btn-primary">',        
-        '<button id="addphoto" onclick="addPhoto(\'' + albumName + "')\" class='btn'>",        
-        "Add Photo",
+        '<input id="photoupload" type="file" accept=".csv">',        
+        '<button id="addphoto" onclick="addPhoto(\'' + albumName + "')\" class='btn-primary'>",
+        "Add Dataset (Less than 250 MB)",
         "</button>",
-        "</div></br>",
+        "</div></br>",        
+        "<div>",
+        "<h4 class='title'>List of Datasets</h4>",
+        message,
+        "<table class='table-responsive'>",
+        "<tr><th></th><th>File Name&nbsp;&nbsp;&nbsp;&nbsp;</th><th>Operation&nbsp;&nbsp;&nbsp;&nbsp;</th></tr>",
+        getHtml(photos),
+        "</table></div></br>",                
         '<button onclick="listAlbums()" class="btn btn-danger btn-block btn-round">',
         "Back To Albums",
         "</button>"
@@ -175,7 +185,15 @@ function listAlbums() {
     var albumPhotosKey = encodeURIComponent(albumName) + "/";
   
     var photoKey = albumPhotosKey + fileName;
-  
+    //alert('photoKey: '+photoKey)
+    //alert('albumPhotosKey: '+ albumPhotosKey)
+    //alert('fileName: '+fileName)
+
+    //ANALYZE-DATASET/Report.csv
+    var splitPhotoKey = photoKey.split(".");
+    var newKey = splitPhotoKey[0]+"_"+new Date().getTime();
+    photoKey = newKey+"."+splitPhotoKey[1];
+    //alert('photoKey final: '+photoKey) 
     // Use S3 ManagedUpload class as it supports multipart uploads
     var upload = new AWS.S3.ManagedUpload({
       params: {
@@ -189,7 +207,7 @@ function listAlbums() {
   
     promise.then(
       function(data) {
-        alert("Successfully uploaded photo.");
+        alert("Successfully uploaded file.");
         viewAlbum(albumName);
       },
       function(err) {
@@ -202,9 +220,9 @@ function listAlbums() {
   function deletePhoto(albumName, photoKey) {
     s3.deleteObject({ Key: photoKey }, function(err, data) {
       if (err) {
-        return alert("There was an error deleting your photo: ", err.message);
+        return alert("There was an error deleting your file: ", err.message);
       }
-      alert("Successfully deleted photo.");
+      alert("Successfully deleted file.");
       viewAlbum(albumName);
     });
   }
@@ -226,9 +244,9 @@ function listAlbums() {
         },
         function(err, data) {
           if (err) {
-            return alert("There was an error deleting your album: ", err.message);
+            return alert("There was an error deleting your folder: ", err.message);
           }
-          alert("Successfully deleted album.");
+          alert("Successfully deleted folder.");
           listAlbums();
         }
       );
