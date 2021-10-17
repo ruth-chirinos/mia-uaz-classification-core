@@ -121,7 +121,7 @@ function listAlbums() {
             "<tr>",
             "<td>",
             //'<img style="width:128px;height:128px;" src="' + photoUrl + '"/>',
-            '<img style="width:30px;height:23px;" src="./assets/img/csv_image.ico"/>',
+            '<img style="width:30px;height:23px;" src="./assets/img/csv_image.png"/>',
             "</td>",
             '<td>'+photoKey.replace(albumPhotosKey, "")+'</td>',
             "<td>",
