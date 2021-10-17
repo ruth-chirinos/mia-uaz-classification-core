@@ -1,4 +1,4 @@
-import dotenv from 'dotenv'
+/*import dotenv from 'dotenv'
 dotenv.config();
 
 
@@ -7,12 +7,8 @@ var bucketRegion = process.env.WEB_AWS_REGION;
 var IdentityPoolId = process.env.WEB_AWS_IDENTITY_POOL_ID;
 
 alert('albumBucketName: '+albumBucketName);
-
-/*
-var albumBucketName = "uaz-unir-bucket";
-var bucketRegion = "us-east-2";
-var IdentityPoolId = "us-east-2:83b42f0e-5545-46f7-83eb-ec0959b66f14";
 */
+
 
 AWS.config.update({
   region: bucketRegion,
