@@ -167,7 +167,7 @@ function listAlbums() {
         getHtml(photos),
         "</table></div></br>",                
         '<button onclick="listAlbums()" class="btn btn-danger btn-block btn-round">',
-        "Back To Albums",
+        "Back To Main Folders",
         "</button>"
       ];
       document.getElementById("app").innerHTML = getHtml(htmlTemplate);
