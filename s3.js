@@ -2,9 +2,9 @@ import dotenv from 'dotenv'
 dotenv.config();
 
 
-var albumBucketName = process.env.AWS_BUCKET_NAME;
-var bucketRegion = process.env.AWS_REGION;
-var IdentityPoolId = process.env.AWS_IDENTITY_POOL_ID;
+var albumBucketName = process.env.WEB_AWS_BUCKET_NAME;
+var bucketRegion = process.env.WEB_AWS_REGION;
+var IdentityPoolId = process.env.WEB_AWS_IDENTITY_POOL_ID;
 
 alert('albumBucketName: '+albumBucketName);
 
