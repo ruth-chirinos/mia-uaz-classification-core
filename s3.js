@@ -1,4 +1,4 @@
-import dotenv from './node_modules/dotenv'
+import dotenv from 'dotenv'
 dotenv.config();
 
 
