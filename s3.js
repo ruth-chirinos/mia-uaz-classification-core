@@ -6,6 +6,8 @@ var albumBucketName = process.env.AWS_BUCKET_NAME;
 var bucketRegion = process.env.AWS_REGION;
 var IdentityPoolId = process.env.AWS_IDENTITY_POOL_ID;
 
+alert('albumBucketName: '+albumBucketName);
+
 /*
 var albumBucketName = "uaz-unir-bucket";
 var bucketRegion = "us-east-2";
