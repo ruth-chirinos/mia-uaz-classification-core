@@ -174,16 +174,17 @@ function listAlbums() {
   }
 
   function uploadDatasets(albumName) {    
-    var albumName = albumName.concat("/", new Date().getTime());
+    var albumName = albumName.concat(new Date().getTime());
     //var albumName = albumName+"/"++"";
-    alert('albumName: '+albumName);
-    createAlbum(albumName);
+    //alert('albumName: '+albumName);
+    //createAlbum(albumName);
     addPhoto(albumName);  
 
   }
 
 
   function viewAlbum(albumName) {
+    alert('albumName: '+albumName)
     var albumPhotosKey = encodeURIComponent(albumName) + "/";
     
     s3.listObjects({ Prefix: albumPhotosKey }, function(err, data) {
@@ -262,23 +263,28 @@ function listAlbums() {
   }
 
   function viewAndLoadDatasets(albumName) { 
-    alert('INI')    
-    s3.listObjects({ Bucket: "uaz-unir-bucket",Prefix:albumName, Delimiter: "/" }, function(err, data) {
-      
+    //alert('INI: --'+albumName+'--')    
+    albumName = encodeURIComponent(albumName) + "/";
+    s3.listObjects({ Bucket: "uaz-unir-bucket",Prefix:albumName, Delimiter: "/" }, function(err, data) {      
       if (err) {
         return alert("There was an error viewing your album: " + err.message);
-      }
+      }         
+
       // 'this' references the AWS.Response instance that represents the response      
-      var href = this.request.httpRequest.endpoint.href;      
-      var bucketUrl = href + albumBucketName + "/";
+      //var href = this.request.httpRequest.endpoint.href;      
+      //var bucketUrl = href + albumBucketName + "/";
       var count = 0;
-      var subAlbums = data.CommonPrefixes.map(function(commonPrefix) {
-        alert('subalbums')
+      
+      //var subAlbums = decodeURIComponent(prefix.replace("/", ""));                
+      var subAlbums = data.CommonPrefixes.map(function(commonPrefix) {                  
         var prefix = commonPrefix.Prefix;
-        var intAlbumName = decodeURIComponent(prefix.replace("/", ""));
-        if(intAlbumName === albumName){
-          return getHtml([""]);    
-        } else {
+        //alert('prefix: '+prefix)  
+        var intAlbumName = prefix;
+        //var intAlbumName = decodeURIComponent(prefix.replace("/", ""));
+        //alert('intAlbumName: '+intAlbumName)
+        //if(intAlbumName === albumName){
+        //  return getHtml([""]);    
+        //} else {
           count = count+1;
           return getHtml([
             "<tr>",
@@ -294,7 +300,7 @@ function listAlbums() {
             "</td>",
             "</tr>"
           ]);
-        }        
+        //}        
       });    
       //var message = photos.length
       var message = count>0
@@ -329,8 +335,10 @@ function listAlbums() {
   }
   
   function viewDatasetFolder(albumName) {
-    var albumPhotosKey = encodeURIComponent(albumName) + "/";
-    //alert("viewDatasetFolder albumPhotosKey " + albumPhotosKey)
+    //albumName = albumName.replace("%2F","/"); 
+    //var albumPhotosKey = encodeURIComponent(albumName) + "/";
+    albumPhotosKey = albumName;
+    alert("viewDatasetFolder albumName " + albumName)
     s3.listObjects({ Prefix: albumPhotosKey }, function(err, data) {
       if (err) {
         return alert("There was an error viewing your album: " + err.message);
@@ -342,11 +350,12 @@ function listAlbums() {
       var photos = data.Contents.map(function(photo) {
         var photoKey = photo.Key;
         var photoUrl = bucketUrl + encodeURIComponent(photoKey);        
-        var pathFolder = photoKey.replace("/","");        
-        pathFolder = bucketUrl+pathFolder+"%2F";        
-        //alert("viewDatasetFolder photoUrl " + photoUrl)
-        //alert("viewDatasetFolder pathFolder " + pathFolder)
-        if(photoUrl != (pathFolder)){
+               
+        var pathAlbumphoto = bucketUrl+albumPhotosKey;        
+        var pathPhotoUrl = bucketUrl+photoKey;
+        //alert("viewDatasetFolder pathAlbumphoto " + pathAlbumphoto)
+        //alert("viewDatasetFolder pathPhotoUrl " + pathPhotoUrl)
+        if(pathAlbumphoto != (pathPhotoUrl)){
           count = count+1;
           return getHtml([
             "<tr>",
@@ -390,7 +399,7 @@ function listAlbums() {
         "<tr><th></th><th>File Name&nbsp;&nbsp;&nbsp;&nbsp;</th><th>Operation&nbsp;&nbsp;&nbsp;&nbsp;</th></tr>",
         getHtml(photos),
         "</table></div></br>",                
-        "<button onclick=\"viewAndLoadDatasets('ANALIZE-DATASET')\" class='btn btn-danger btn-block btn-round'>",
+        "<button onclick=\"viewAndLoadDatasets('ANALYZE-DATASET')\" class='btn btn-danger btn-block btn-round'>",
         "Back To Datasets",
         "</button>"
       ];
@@ -401,16 +410,19 @@ function listAlbums() {
    
 
   function addPhoto(albumName) {
+    alert('Upload: '+ albumName);
     var files = document.getElementById("photoupload").files;
     if (!files.length) {
       return alert("Please choose a file to upload first.");
     }
     var file = files[0];
     var fileName = file.name;
-    var albumPhotosKey = encodeURIComponent(albumName) + "/";
+    //var albumPhotosKey = encodeURIComponent(albumName) + "/"; //borrar
+    var albumPhotosKey = albumName + "/";  //Lo bueno
   
     var photoKey = albumPhotosKey + fileName;
-    /*//alert('photoKey: '+photoKey)
+    alert('photoKey: '+photoKey)
+    /*//
     //alert('albumPhotosKey: '+ albumPhotosKey)
     //alert('fileName: '+fileName)
 
@@ -420,8 +432,14 @@ function listAlbums() {
     photoKey = newKey+"."+splitPhotoKey[1];
     //alert('photoKey final: '+photoKey) */
     // Use S3 ManagedUpload class as it supports multipart uploads
+    /*
+    alert('fileName: '+fileName)
+    alert('albumBucketName: '+albumBucketName)
+    alert('photoKey: '+photoKey)
+    */
     var upload = new AWS.S3.ManagedUpload({
       params: {
+        Body: fileName, //** */
         Bucket: albumBucketName,
         Key: photoKey,
         Body: file
@@ -433,7 +451,7 @@ function listAlbums() {
     promise.then(
       function(data) {
         alert("Successfully uploaded file.");
-        viewAlbum(albumName);
+        viewDatasetFolder(albumName);
       },
       function(err) {
         return alert("There was an error uploading your photo: ", err.message);
