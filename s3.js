@@ -338,7 +338,7 @@ function listAlbums() {
     //albumName = albumName.replace("%2F","/"); 
     //var albumPhotosKey = encodeURIComponent(albumName) + "/";
     albumPhotosKey = albumName;
-    alert("viewDatasetFolder albumName " + albumName)
+    //alert("viewDatasetFolder albumName " + albumName)
     s3.listObjects({ Prefix: albumPhotosKey }, function(err, data) {
       if (err) {
         return alert("There was an error viewing your album: " + err.message);
