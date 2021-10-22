@@ -184,7 +184,7 @@ function listAlbums() {
 
 
   function viewAlbum(albumName) {
-    alert('albumName: '+albumName)
+    //alert('albumName: '+albumName)
     var albumPhotosKey = encodeURIComponent(albumName) + "/";
     
     s3.listObjects({ Prefix: albumPhotosKey }, function(err, data) {
@@ -410,7 +410,7 @@ function listAlbums() {
    
 
   function addPhoto(albumName) {
-    alert('Upload: '+ albumName);
+    //alert('Upload: '+ albumName);
     var files = document.getElementById("photoupload").files;
     if (!files.length) {
       return alert("Please choose a file to upload first.");
@@ -421,7 +421,7 @@ function listAlbums() {
     var albumPhotosKey = albumName + "/";  //Lo bueno
   
     var photoKey = albumPhotosKey + fileName;
-    alert('photoKey: '+photoKey)
+    //alert('photoKey: '+photoKey)
     /*//
     //alert('albumPhotosKey: '+ albumPhotosKey)
     //alert('fileName: '+fileName)
