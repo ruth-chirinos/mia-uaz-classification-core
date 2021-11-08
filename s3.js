@@ -173,6 +173,10 @@ function listAlbums() {
     });
   }
 
+  function uploadDatasetsTestLambda(albumName) {
+    executeLambdaFunction(albumName);     
+  }
+
   function uploadDatasets(albumName) {
     var timestamp = new Date().getTime();        
     var albumName = albumName.concat(timestamp);
@@ -182,6 +186,7 @@ function listAlbums() {
     //setTimeout(function() {}, (30 * 1000));
     //sleep(30000);
     alert('sleep')
+    alert('albumName: '+albumName)
  //const sleep = (milliseconds) => {return new Promise(resolve => setTimeout(resolve, milliseconds))}
     executeLambdaFunction(timestamp.toString());     
   }
@@ -192,9 +197,10 @@ function listAlbums() {
       dataType: 'json',
       type: 'POST', 
       beforeSend: function(request) {
-        request.setRequestHeader("Access-Control-Allow-Headers" , "Content-Type"),
+        request.setRequestHeader("Access-Control-Allow-Headers" , "Content-Type, Authorization"),
         request.setRequestHeader("Access-Control-Allow-Origin", "*"),
-        request.setRequestHeader("Access-Control-Allow-Methods", "OPTIONS,POST,GET")
+        //request.setRequestHeader("Access-Control-Allow-Methods", "OPTIONS,POST,GET"
+        )
       },
       contentType: 'application/json', 
       data: JSON.stringify({
@@ -211,6 +217,7 @@ function listAlbums() {
           alert('Ha ocurrido un error en la asignacion de tiempo');
       }
     });
+
     /*var apigateway = new AWS.APIGateway();
     var params = {
       httpMethod: 'POST',
