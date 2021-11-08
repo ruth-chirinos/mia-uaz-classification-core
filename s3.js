@@ -173,12 +173,59 @@ function listAlbums() {
     });
   }
 
-  function uploadDatasets(albumName) {    
-    var albumName = albumName.concat(new Date().getTime());
-    //var albumName = albumName+"/"++"";
-    //alert('albumName: '+albumName);
-    //createAlbum(albumName);
-    addPhoto(albumName);  
+  function uploadDatasets(albumName) {
+    var timestamp = new Date().getTime();        
+    var albumName = albumName.concat(timestamp);
+    
+    addPhoto(albumName);     
+    //await new Promise(r => setTimeout(r, 30000));    
+    //setTimeout(function() {}, (30 * 1000));
+    //sleep(30000);
+    alert('sleep')
+ //const sleep = (milliseconds) => {return new Promise(resolve => setTimeout(resolve, milliseconds))}
+    executeLambdaFunction(timestamp.toString());     
+  }
+
+  function executeLambdaFunction(timestamp){
+    $.ajax({
+      url: "https://0r32io5uz5.execute-api.us-east-2.amazonaws.com/unir-uaz-stage-sandbox", 
+      dataType: 'json',
+      type: 'POST', 
+      beforeSend: function(request) {
+        request.setRequestHeader("Access-Control-Allow-Headers" , "Content-Type"),
+        request.setRequestHeader("Access-Control-Allow-Origin", "*"),
+        request.setRequestHeader("Access-Control-Allow-Methods", "OPTIONS,POST,GET")
+      },
+      contentType: 'application/json', 
+      data: JSON.stringify({
+        'folder_name': timestamp}),
+      success: function(data) {
+        console.log(data);   
+        /*if(data['error'] == null) {
+              alert('Registro exitoso');              
+          } else {
+              alert('Ha ocurrido un error en la asignacion de tiempo: ' + data['error']);
+          } */           
+      },
+      error: function() {
+          alert('Ha ocurrido un error en la asignacion de tiempo');
+      }
+    });
+    /*var apigateway = new AWS.APIGateway();
+    var params = {
+      httpMethod: 'POST',
+      resourceId: 'vlfw419e94',
+      restApiId: '0r32io5uz5',
+      body: JSON.stringify({"folder_name":timestamp}),
+      //clientCertificateId: 'STRING_VALUE',
+      headers: {
+        "content-type": "application/json"        
+      }
+    };
+    apigateway.testInvokeMethod(params, function(err, data) {
+      if (err) console.log(err, err.stack); // an error occurred
+      else     console.log(data);           // successful response
+    });*/
 
   }
 
