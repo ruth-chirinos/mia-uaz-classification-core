@@ -402,8 +402,8 @@ function listAlbums() {
             '<img style="width:30px;height:23px;" src="./assets/img/file.jpg"/>',
             "</td>",
             "<td><a href='"+photoUrl+"'>"+photoKey.replace(albumPhotosKey, "")+"</a></td>",
-            "<td>",
-            "<div>",
+            //"<td>",
+            //"<div>",
             //"<span onclick=\"deletePhoto('" +
             //  albumName +
             //  "','" +
@@ -411,8 +411,8 @@ function listAlbums() {
             //  "')\" style='color:red;cursor:pointer;'>",
             //"[Delete]&nbsp;&nbsp;",
             //"</span>",            
-            "</div>",
-            "</td>",
+            //"</div>",
+            //"</td>",
             "</tr>"
           ]);
         } else {
@@ -433,7 +433,7 @@ function listAlbums() {
         "<h4 class='title'>List of Files</h4>",
         message,
         "<table class='table-responsive'>",
-        "<tr><th></th><th>File Name&nbsp;&nbsp;&nbsp;&nbsp;</th><th>Operation&nbsp;&nbsp;&nbsp;&nbsp;</th></tr>",
+        "<tr><th></th><th>File Name&nbsp;&nbsp;&nbsp;&nbsp;</th></tr>",
         getHtml(photos),
         "</table></div></br>",                
         "<button onclick=\"viewAndLoadDatasets('ANALYZE-DATASET')\" class='btn btn-danger btn-block btn-round'>",
