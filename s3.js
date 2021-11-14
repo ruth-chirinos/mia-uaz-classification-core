@@ -1,14 +1,3 @@
-/*import dotenv from 'dotenv'
-dotenv.config();
-
-
-var albumBucketName = process.env.WEB_AWS_BUCKET_NAME;
-var bucketRegion = process.env.WEB_AWS_REGION;
-var IdentityPoolId = process.env.WEB_AWS_IDENTITY_POOL_ID;
-
-alert('albumBucketName: '+albumBucketName);
-*/
-
 var albumBucketName = "uaz-unir-bucket";
 var bucketRegion = "us-east-2";
 var IdentityPoolId = "us-east-2:83b42f0e-5545-46f7-83eb-ec0959b66f14";
@@ -21,9 +10,10 @@ AWS.config.update({
   })
 });
 
-var s3 = new AWS.S3({
-  apiVersion: "2006-03-01",
-  params: { Bucket: albumBucketName }
+var s3 = new AWS.S3({  
+  signatureVersion: "v4",
+  //apiVersion: "2006-03-01",
+  params: { Bucket: albumBucketName }  
 });
 
 /************************************************* */
@@ -37,13 +27,13 @@ function listAlbums() {
           var albumName = decodeURIComponent(prefix.replace("/", ""));          
           if(albumName==='ANALYZE-DATASET') {
             return getHtml([
-              "<li>",
+              //"<li>",
               //"<span onclick=\"deleteAlbum('" + albumName + "')\" style='color:red;cursor:pointer;'>[Delete]</span>",
               //"<span onclick=\"viewAlbum('" + albumName + "')\" style='color:blue;cursor:pointer;'>",
-              "<span onclick=\"viewAndLoadDatasets('" + albumName + "')\" style='color:blue;cursor:pointer;'>",            
+              "<button onclick=\"viewAndLoadDatasets('" + albumName + "')\" class='btn btn-danger btn-block btn-round'>",
               albumName,
-              "</span>",
-              "</li>"
+              "</button>",
+              //"</li>"
             ]); 
           } else{
             return getHtml([
@@ -53,7 +43,16 @@ function listAlbums() {
         });
         var message = albums.length
           ? getHtml([
-              "<p>This tool wants to help you to analyze structured datasets (Features and Models).</p>",
+              "<p>This tool wants to help you to analyze structured datasets (Features and Models).</p>"+
+              "<p><b>Considerations:</b>"+
+                "<ul>"+
+                  "<li>You can upload datasets in .csv format</li>"+
+                  "<li>The dataset must have a column named 'target'.</li>"+
+                  "<li>The dataset must have a maximum size of 3MB.</li> "+
+                  "<li>The average to have the result of the analysis is 10 minutes, it depends of the size of your dataset.</li>"+
+                  "<li>To use the result model , you need to have installed: pip install auto-sklearn == 0.14.0 joblib == 1.1.0</li>"+
+                "</ul>"+
+              "</p>",
               //"<p>Click on the <span style='color:blue;'>Folder Name</span> to view it.</p>",
               //"<p>Click on the <span style='color:red;'>[Delete]</span> to delete the album.</p></br>"
             ])
@@ -61,9 +60,9 @@ function listAlbums() {
         var htmlTemplate = [
           "<h3 class='title mx-auto'><b>Analysis of Datasets</b></h3>",
           message,
-          "<ul>",
+          //"<ul>",
           getHtml(albums),
-          "</ul>"
+          //"</ul>"
           /* 
           //Hidden logic, only enabled for deleting Albums
           ,
@@ -127,8 +126,7 @@ function listAlbums() {
     }
     if (albumName.indexOf("/") !== -1) {
       return alert("Album names cannot contain slashes.");
-    }
-    //var albumKey = encodeURIComponent(albumName)+"/";    
+    }       
     var albumKey = albumName.concat(albumName,"/");    
     s3.headObject({ Key: albumKey }, function(err, data) {
       if (!err) {
@@ -179,42 +177,34 @@ function listAlbums() {
 
   function uploadDatasets(albumName) {
     var timestamp = new Date().getTime();        
-    var albumName = albumName.concat(timestamp);
-    
-    addPhoto(albumName);     
-    //await new Promise(r => setTimeout(r, 30000));    
-    //setTimeout(function() {}, (30 * 1000));
-    //sleep(30000);
-    alert('sleep')
-    alert('albumName: '+albumName)
- //const sleep = (milliseconds) => {return new Promise(resolve => setTimeout(resolve, milliseconds))}
+    var albumName = albumName.concat(timestamp);    
+    addPhoto(albumName);         
     executeLambdaFunction(timestamp.toString());     
   }
 
   function executeLambdaFunction(timestamp){
     $.ajax({
-      url: "https://0r32io5uz5.execute-api.us-east-2.amazonaws.com/unir-uaz-stage-sandbox", 
-      dataType: 'json',
       type: 'POST', 
+      url: "https://0r32io5uz5.execute-api.us-east-2.amazonaws.com/unir-uaz-stage-sandbox", 
+      dataType: 'json',            
       beforeSend: function(request) {
-        request.setRequestHeader("Access-Control-Allow-Headers" , "Content-Type, Authorization"),
-        request.setRequestHeader("Access-Control-Allow-Origin", "*"),
-        //request.setRequestHeader("Access-Control-Allow-Methods", "OPTIONS,POST,GET"
-        )
+        //request.setRequestHeader("Access-Control-Allow-Headers" , "Content-Type, Authorization")
+        //request.setRequestHeader("Access-Control-Allow-Origin", "*")
+        //,request.setRequestHeader("Access-Control-Allow-Methods", "OPTIONS,POST,GET")
       },
       contentType: 'application/json', 
       data: JSON.stringify({
         'folder_name': timestamp}),
       success: function(data) {
-        console.log(data);   
-        /*if(data['error'] == null) {
-              alert('Registro exitoso');              
-          } else {
-              alert('Ha ocurrido un error en la asignacion de tiempo: ' + data['error']);
-          } */           
+        if(data['error'] == null) {
+            alert('Registro exitoso');              
+        } else {
+            alert('Ha ocurrido un error en la asignacion de tiempo: ' + data['error']);
+        }            
       },
       error: function() {
-          alert('Ha ocurrido un error en la asignacion de tiempo');
+          //alert('Ha ocurrido un error en la asignacion de tiempo');
+          console.log('La funcion esta funcionando')
       }
     });
 
@@ -295,8 +285,7 @@ function listAlbums() {
         "</h3>",
         "<h4 class='title'>Upload a new Dataset</h4>",
         "<div class='custom-file mb-3'>",
-        '<input id="photoupload" type="file" accept=".csv">',        
-        //'<button id="addphoto" onclick="addPhoto(\'' + albumName + "')\" class='btn-primary'>",
+        '<input id="photoupload" type="file" accept=".csv">',                
         '<button id="addphoto" onclick="uploadDatasets(\'' + albumName + "')\" class='btn-primary'>",        
         "Add Dataset (Less than 250 MB)",
         "</button>",
@@ -316,8 +305,7 @@ function listAlbums() {
     }); 
   }
 
-  function viewAndLoadDatasets(albumName) { 
-    //alert('INI: --'+albumName+'--')    
+  function viewAndLoadDatasets(albumName) {     
     albumName = encodeURIComponent(albumName) + "/";
     s3.listObjects({ Bucket: "uaz-unir-bucket",Prefix:albumName, Delimiter: "/" }, function(err, data) {      
       if (err) {
@@ -325,36 +313,25 @@ function listAlbums() {
       }         
 
       // 'this' references the AWS.Response instance that represents the response      
-      //var href = this.request.httpRequest.endpoint.href;      
-      //var bucketUrl = href + albumBucketName + "/";
       var count = 0;
       
-      //var subAlbums = decodeURIComponent(prefix.replace("/", ""));                
       var subAlbums = data.CommonPrefixes.map(function(commonPrefix) {                  
         var prefix = commonPrefix.Prefix;
         //alert('prefix: '+prefix)  
-        var intAlbumName = prefix;
-        //var intAlbumName = decodeURIComponent(prefix.replace("/", ""));
-        //alert('intAlbumName: '+intAlbumName)
-        //if(intAlbumName === albumName){
-        //  return getHtml([""]);    
-        //} else {
-          count = count+1;
-          return getHtml([
-            "<tr>",
-            "<td>",
-            //"<span onclick=\"deleteAlbum('" + intAlbumName + "')\" style='color:red;cursor:pointer;'>[Delete]</span>",
-            //"<span onclick=\"viewAlbum('" + intAlbumName + "')\" style='color:blue;cursor:pointer;'>",
-            "<span onclick=\"viewDatasetFolder('" + intAlbumName + "')\" style='color:blue;cursor:pointer;'>",            
-            intAlbumName,
-            "</span>",
-            "</td>",
-            "<td>",
-            "<span onclick=\"deleteAlbum('" + intAlbumName + "')\" style='color:red;cursor:pointer;'>[Delete]</span>",
-            "</td>",
-            "</tr>"
-          ]);
-        //}        
+        var intAlbumName = prefix;        
+        count = count+1;
+        return getHtml([
+          "<tr>",
+          "<td>",
+          "<span onclick=\"viewDatasetFolder('" + intAlbumName + "')\" style='color:blue;cursor:pointer;'>",            
+          intAlbumName,
+          "</span>",
+          "</td>",
+          "<td>",
+          "<span onclick=\"deleteAlbum('" + intAlbumName + "')\" style='color:red;cursor:pointer;'>[Delete]</span>",
+          "</td>",
+          "</tr>"
+        ]);              
       });    
       //var message = photos.length
       var message = count>0
@@ -387,10 +364,17 @@ function listAlbums() {
       document.getElementById("app").innerHTML = getHtml(htmlTemplate);
     }); 
   }
+
+  function download(myKey){
+    const url = s3.getSignedUrl('getObject', {
+      Bucket: albumBucketName,
+      Key: myKey,
+      Expires: 300
+     })    
+    return url;     
+  }
   
   function viewDatasetFolder(albumName) {
-    //albumName = albumName.replace("%2F","/"); 
-    //var albumPhotosKey = encodeURIComponent(albumName) + "/";
     albumPhotosKey = albumName;
     //alert("viewDatasetFolder albumName " + albumName)
     s3.listObjects({ Prefix: albumPhotosKey }, function(err, data) {
@@ -407,26 +391,26 @@ function listAlbums() {
                
         var pathAlbumphoto = bucketUrl+albumPhotosKey;        
         var pathPhotoUrl = bucketUrl+photoKey;
+        var photoUrl = download(photoKey);        
         //alert("viewDatasetFolder pathAlbumphoto " + pathAlbumphoto)
         //alert("viewDatasetFolder pathPhotoUrl " + pathPhotoUrl)
         if(pathAlbumphoto != (pathPhotoUrl)){
           count = count+1;
           return getHtml([
             "<tr>",
-            "<td>",
-            //'<img style="width:128px;height:128px;" src="' + photoUrl + '"/>',
+            "<td>",            
             '<img style="width:30px;height:23px;" src="./assets/img/file.jpg"/>',
             "</td>",
-            '<td><a href="' + photoUrl + '">'+photoKey.replace(albumPhotosKey, "")+'</a></td>',
+            "<td><a href='"+photoUrl+"'>"+photoKey.replace(albumPhotosKey, "")+"</a></td>",
             "<td>",
             "<div>",
-            "<span onclick=\"deletePhoto('" +
-              albumName +
-              "','" +
-              photoKey +
-              "')\" style='color:red;cursor:pointer;'>",
-            "[Delete]&nbsp;&nbsp;",
-            "</span>",            
+            //"<span onclick=\"deletePhoto('" +
+            //  albumName +
+            //  "','" +
+            //  photoKey +
+            //  "')\" style='color:red;cursor:pointer;'>",
+            //"[Delete]&nbsp;&nbsp;",
+            //"</span>",            
             "</div>",
             "</td>",
             "</tr>"
@@ -436,8 +420,7 @@ function listAlbums() {
             ""
           ]);
         }
-      });
-      //var message = photos.length
+      });      
       var message = count>0
         ? ""
         //? "<p>Click on the <span style='color:red;'>[Delete]</span> to delete the file.</p></br>"
@@ -470,28 +453,13 @@ function listAlbums() {
       return alert("Please choose a file to upload first.");
     }
     var file = files[0];
-    var fileName = file.name;
-    //var albumPhotosKey = encodeURIComponent(albumName) + "/"; //borrar
+    var fileName = file.name;   
     var albumPhotosKey = albumName + "/";  //Lo bueno
   
     var photoKey = albumPhotosKey + fileName;
     //alert('photoKey: '+photoKey)
-    /*//
-    //alert('albumPhotosKey: '+ albumPhotosKey)
-    //alert('fileName: '+fileName)
-
-    //ANALYZE-DATASET/Report.csv
-    var splitPhotoKey = photoKey.split(".");
-    var newKey = splitPhotoKey[0]+"_"+new Date().getTime();
-    photoKey = newKey+"."+splitPhotoKey[1];
-    //alert('photoKey final: '+photoKey) */
-    // Use S3 ManagedUpload class as it supports multipart uploads
-    /*
-    alert('fileName: '+fileName)
-    alert('albumBucketName: '+albumBucketName)
-    alert('photoKey: '+photoKey)
-    */
     var upload = new AWS.S3.ManagedUpload({
+      signatureVersion: "v4",
       params: {
         Body: fileName, //** */
         Bucket: albumBucketName,
@@ -516,8 +484,6 @@ function listAlbums() {
   
 
   function addPhotoReloadedNOUSADO(albumName) {
-    //Create Album
-
     //Create File
     var files = document.getElementById("photoupload").files;
     if (!files.length) {
@@ -532,13 +498,13 @@ function listAlbums() {
     //alert('albumPhotosKey: '+ albumPhotosKey)
     //alert('fileName: '+fileName)
 
-    //ANALYZE-DATASET/Report.csv
     var splitPhotoKey = photoKey.split(".");
     var newKey = splitPhotoKey[0]+"_"+new Date().getTime();
     photoKey = newKey+"."+splitPhotoKey[1];
     //alert('photoKey final: '+photoKey) 
     // Use S3 ManagedUpload class as it supports multipart uploads
     var upload = new AWS.S3.ManagedUpload({
+      signatureVersion: "v4",
       params: {
         Bucket: albumBucketName,
         Key: photoKey,
@@ -566,15 +532,14 @@ function listAlbums() {
         return alert("There was an error deleting your file: ", err.message);
       }
       alert("Successfully deleted file.");
-      viewAlbum(albumName);
+      viewDatasetFolder(albumName)
     });
   }
 
   
-  function deleteAlbum(albumName) {
-    //var albumKey = encodeURIComponent(albumName) + "/";
-    var albumKey = encodeURIComponent(albumName);
-    s3.listObjects({ Prefix: albumKey }, function(err, data) {
+  function deleteAlbum(albumPhotosKey) {
+    //alert("viewDatasetFolder albumName " + albumName)
+    s3.listObjects({ Prefix: albumPhotosKey }, function(err, data) {    
       if (err) {
         return alert("There was an error deleting your album: ", err.message);
       }
@@ -589,8 +554,8 @@ function listAlbums() {
           if (err) {
             return alert("There was an error deleting your folder: ", err.message);
           }
-          alert("Successfully deleted folder.");
-          listAlbums();
+          alert("Successfully deleted folder.");          
+          viewAndLoadDatasets('ANALYZE-DATASET')
         }
       );
     });
