@@ -477,7 +477,7 @@ function listAlbums() {
         viewDatasetFolder(albumName);
       },
       function(err) {
-        return alert("There was an error uploading your photo: ", err.message);
+        return alert("There was an error uploading your file: ", err.message);
       }
     );
   }
