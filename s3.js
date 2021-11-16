@@ -49,7 +49,7 @@ function listAlbums() {
                   "<li>You can upload datasets in .csv format</li>"+
                   "<li>The name of the target column must have the label: 'target'</li>"+
                   "<li>The dataset must have a maximum size of 3MB.</li> "+
-                  "<li>The average to have the result of the analysis is 10 minutes, it depends of the size of your dataset.</li>"+
+                  "<li>The average to have the result of the analysis is 10 minutes, it depends on the size of your dataset.</li>"+
                   "<li>To use the result model , you need to have installed: pip install auto-sklearn == 0.14.0 joblib == 1.1.0</li>"+
                 "</ul>"+
               "</p>",
@@ -178,8 +178,8 @@ function listAlbums() {
   function uploadDatasets(albumName) {
     var timestamp = new Date().getTime();        
     var albumName = albumName.concat(timestamp);    
-    addPhoto(albumName);         
-    executeLambdaFunction(timestamp.toString());     
+    addPhoto(albumName, timestamp);            
+    //executeLambdaFunction(timestamp.toString());     
   }
 
   function executeLambdaFunction(timestamp){
@@ -446,7 +446,7 @@ function listAlbums() {
   
    
 
-  function addPhoto(albumName) {
+  function addPhoto(albumName, timestamp) {
     //alert('Upload: '+ albumName);
     var files = document.getElementById("photoupload").files;
     if (!files.length) {
@@ -473,6 +473,7 @@ function listAlbums() {
     promise.then(
       function(data) {
         alert("Successfully uploaded file.");
+        executeLambdaFunction(timestamp.toString());     
         viewDatasetFolder(albumName);
       },
       function(err) {
