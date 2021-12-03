@@ -1,7 +1,11 @@
-var albumBucketName = "uaz-unir-bucket";
+/*var albumBucketName = "uaz-unir-bucket";
 var bucketRegion = "us-east-2";
 var IdentityPoolId = "us-east-2:83b42f0e-5545-46f7-83eb-ec0959b66f14";
+*/
 
+var albumBucketName = "uaz-bucket";
+var bucketRegion = "us-east-1";
+var IdentityPoolId = "us-east-1:f4c18571-a422-4fb8-9a83-c68e3d21d68e";
 
 AWS.config.update({
   region: bucketRegion,
@@ -17,8 +21,8 @@ var s3 = new AWS.S3({
 });
 
 /************************************************* */
-function listAlbums() {
-    s3.listObjects({ Bucket: "uaz-unir-bucket", Delimiter: "/" }, function(err, data) {
+function listAlbums() {        
+      s3.listObjects({ Bucket: albumBucketName, Delimiter: "/" }, function(err, data) {
       if (err) {
         return alert("There was an error listing your albums: " + err.message);
       } else {
@@ -27,13 +31,9 @@ function listAlbums() {
           var albumName = decodeURIComponent(prefix.replace("/", ""));          
           if(albumName==='ANALYZE-DATASET') {
             return getHtml([
-              //"<li>",
-              //"<span onclick=\"deleteAlbum('" + albumName + "')\" style='color:red;cursor:pointer;'>[Delete]</span>",
-              //"<span onclick=\"viewAlbum('" + albumName + "')\" style='color:blue;cursor:pointer;'>",
               "<button onclick=\"viewAndLoadDatasets('" + albumName + "')\" class='btn btn-danger btn-block btn-round'>",
               albumName,
-              "</button>",
-              //"</li>"
+              "</button>",              
             ]); 
           } else{
             return getHtml([
@@ -52,31 +52,21 @@ function listAlbums() {
                   "<li>The average to have the result of the analysis is 10 minutes, it depends on the size of your dataset.</li>"+
                   "<li>To use the result model , you need to have installed: pip install auto-sklearn == 0.14.0 joblib == 1.1.0</li>"+
                 "</ul>"+
-              "</p>",
-              //"<p>Click on the <span style='color:blue;'>Folder Name</span> to view it.</p>",
-              //"<p>Click on the <span style='color:red;'>[Delete]</span> to delete the album.</p></br>"
+              "</p>",              
             ])
           : "<p>You do not have any folders. Please create folder.";
         var htmlTemplate = [
           "<h3 class='title mx-auto'><b>Analysis of Datasets</b></h3>",
-          message,
-          //"<ul>",
-          getHtml(albums),
-          //"</ul>"
-          /* 
-          //Hidden logic, only enabled for deleting Albums
-          ,
-          "<button onclick=\"createAlbum(prompt('Enter Album Name:'))\" class='btn btn-danger btn-block btn-round'>",
-          "Create New Album",
-          "</button>"*/
+          message,          
+          getHtml(albums),          
         ];
         document.getElementById("app").innerHTML = getHtml(htmlTemplate);
       }
     });
   }
 
-  function listSubAlbums(albumName) {
-    s3.listObjects({ Bucket: "uaz-unir-bucket",Prefix:albumName, Delimiter: "/" }, function(err, data) {
+  function listSubAlbums(albumName) {    
+      s3.listObjects({ Bucket: albumBucketName,Prefix:albumName, Delimiter: "/" }, function(err, data) {
       if (err) {
         return alert("There was an error listing your folder: " + err.message);
       } else {
@@ -178,19 +168,15 @@ function listAlbums() {
   function uploadDatasets(albumName) {
     var timestamp = new Date().getTime();        
     var albumName = albumName.concat(timestamp);    
-    addPhoto(albumName, timestamp);            
-    //executeLambdaFunction(timestamp.toString());     
+    addPhoto(albumName, timestamp);                
   }
 
   function executeLambdaFunction(timestamp){
     $.ajax({
       type: 'POST', 
-      url: "https://0r32io5uz5.execute-api.us-east-2.amazonaws.com/unir-uaz-stage-sandbox", 
+      url: "https://hrbkcwgg8d.execute-api.us-east-1.amazonaws.com/uaz-stage-sandbox", 
       dataType: 'json',            
-      beforeSend: function(request) {
-        //request.setRequestHeader("Access-Control-Allow-Headers" , "Content-Type, Authorization")
-        //request.setRequestHeader("Access-Control-Allow-Origin", "*")
-        //,request.setRequestHeader("Access-Control-Allow-Methods", "OPTIONS,POST,GET")
+      beforeSend: function(request) {        
       },
       contentType: 'application/json', 
       data: JSON.stringify({
@@ -243,15 +229,12 @@ function listAlbums() {
         var photoKey = photo.Key;
         var photoUrl = bucketUrl + encodeURIComponent(photoKey);        
         var pathFolder = photoKey.replace("/","");        
-        pathFolder = bucketUrl+pathFolder+"%2F";        
-        //alert("photoUrl " + photoUrl)
-        //alert("pathFolder " + pathFolder)
+        pathFolder = bucketUrl+pathFolder+"%2F";                
         if(photoUrl != (pathFolder)){
           count = count+1;
           return getHtml([
             "<tr>",
-            "<td>",
-            //'<img style="width:128px;height:128px;" src="' + photoUrl + '"/>',
+            "<td>",            
             '<img style="width:30px;height:23px;" src="./assets/img/csv_image.png"/>',
             "</td>",
             '<td>'+photoKey.replace(albumPhotosKey, "")+'</td>',
@@ -273,11 +256,9 @@ function listAlbums() {
             ""
           ]);
         }
-      });
-      //var message = photos.length
+      });      
       var message = count>0
-        ? ""
-        //? "<p>Click on the <span style='color:red;'>[Delete]</span> to delete the file.</p></br>"
+        ? ""        
         : "<p>You do not have any files in this folder. Please add files.</p></br>";        
       var htmlTemplate = [
         "<h3 class='title mx-auto'>",
@@ -307,7 +288,8 @@ function listAlbums() {
 
   function viewAndLoadDatasets(albumName) {     
     albumName = encodeURIComponent(albumName) + "/";
-    s3.listObjects({ Bucket: "uaz-unir-bucket",Prefix:albumName, Delimiter: "/" }, function(err, data) {      
+    //s3.listObjects({ Bucket: "uaz-unir-bucket",Prefix:albumName, Delimiter: "/" }, function(err, data) {      
+    s3.listObjects({ Bucket: albumBucketName,Prefix:albumName, Delimiter: "/" }, function(err, data) {      
       if (err) {
         return alert("There was an error viewing your album: " + err.message);
       }         
