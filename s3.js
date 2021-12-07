@@ -1,8 +1,3 @@
-/*var albumBucketName = "uaz-unir-bucket";
-var bucketRegion = "us-east-2";
-var IdentityPoolId = "us-east-2:83b42f0e-5545-46f7-83eb-ec0959b66f14";
-*/
-
 var albumBucketName = "uaz-bucket";
 var bucketRegion = "us-east-1";
 var IdentityPoolId = "us-east-1:f4c18571-a422-4fb8-9a83-c68e3d21d68e";
@@ -46,11 +41,12 @@ function listAlbums() {
               "<p>This tool wants to help you to analyze structured datasets (Features and Models).</p>"+
               "<p><b>Considerations:</b>"+
                 "<ul>"+
-                  "<li>You can upload datasets in .csv format</li>"+
-                  "<li>The name of the target column must have the label: 'target'</li>"+
+                  "<li>You can upload datasets in .csv format.</li>"+
+                  "<li>The name of the target column must have the label: 'target'.</li>"+
                   "<li>The dataset must have a maximum size of 3MB.</li> "+
-                  "<li>The average to have the result of the analysis is 10 minutes, it depends on the size of your dataset.</li>"+
-                  "<li>To use the result model , you need to have installed: pip install auto-sklearn == 0.14.0 joblib == 1.1.0</li>"+
+                  "<li>The time to have the result of the analysis is 1 hour </li>"+
+                  "<li>To use the result model, you need to have it installed in a notebook: pip install auto-sklearn == 0.14.0 joblib == 1.1.0 pandas==1.3.4.</li>"+
+                  "<li>For more information check our  <a href='https://docs.google.com/document/d/1xJ3HIgVNWuHVBUBUw5rH3cBZO9S3ZOBeakvHQnt9MNE/edit?usp=sharing'>USER MANUAL</a></li>"+
                 "</ul>"+
               "</p>",              
             ])
@@ -314,8 +310,7 @@ function listAlbums() {
           "</td>",
           "</tr>"
         ]);              
-      });    
-      //var message = photos.length
+      });          
       var message = count>0
         ? ""
         //? "<p>Click on the <span style='color:red;'>[Delete]</span> to delete the file.</p></br>"
